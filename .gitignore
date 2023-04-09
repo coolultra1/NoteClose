@@ -2,7 +2,7 @@
 *.jar
 *.log
 dependency-reduced-pom.xml
-*.properties
+noteclose.properties
 .gradle
 build/
 bin/
