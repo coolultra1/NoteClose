@@ -1,0 +1,17 @@
+*.class
+*.jar
+*.log
+dependency-reduced-pom.xml
+*.properties
+.gradle
+build/
+bin/
+.idea/
+target/
+.vscode/
+gradle-app.setting
+!gradle-wrapper.jar
+.gradletasknamecache
+**/build/
+# Ignore Gradle build output directory
+build

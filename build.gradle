@@ -1,0 +1,42 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+}
+
+repositories {
+    mavenCentral()
+}
+
+group 'de.emilius123'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 18
+targetCompatibility = 18
+
+dependencies {
+    // ScribeJava
+    implementation 'com.github.scribejava:scribejava-apis:8.3.1'
+
+    // Javalin
+    implementation 'io.javalin:javalin:4.6.3'
+
+    // Gson
+    implementation 'com.google.code.gson:gson:2.10.1'
+
+    // Slf4j Simple
+    implementation 'org.slf4j:slf4j-simple:1.7.36'
+
+    // MySQL Connector
+    implementation 'mysql:mysql-connector-java:8.0.29'
+}
+
+mainClassName = 'de.emilius123.noteclose.Main'
+
+shadowJar {
+    manifest {
+        attributes(
+                'Main-Class': mainClassName
+        )
+    }
+}
