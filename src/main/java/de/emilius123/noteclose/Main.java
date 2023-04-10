@@ -4,34 +4,40 @@ import com.github.scribejava.core.builder.ScopeBuilder;
 import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import de.emilius123.noteclose.auth.AuthController;
+import de.emilius123.noteclose.auth.OSMAccessManager;
+import de.emilius123.noteclose.auth.UserScheduleRole;
 import de.emilius123.noteclose.db.DBConnection;
 import de.emilius123.noteclose.db.DBUtil;
 import de.emilius123.noteclose.osm.OSMApiUtil;
 import de.emilius123.noteclose.osm.exception.OSMApiException;
 import de.emilius123.noteclose.osm.exception.OSMDataException;
-import de.emilius123.noteclose.osm.note.ScheduledNote;
-import de.emilius123.noteclose.osm.note.ScheduledNoteStatus;
+import de.emilius123.noteclose.osm.note.NoteScheduleController;
+import de.emilius123.noteclose.osm.timer.ClosingNoteFinderTimerTask;
 import de.emilius123.noteclose.util.Path;
 import io.javalin.Javalin;
+import io.javalin.http.HttpCode;
 import org.eclipse.jetty.server.session.SessionHandler;
-import org.xml.sax.ErrorHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.Timestamp;
 import java.util.Properties;
-import java.util.concurrent.ExecutionException;
+import java.util.Timer;
 import java.util.function.Supplier;
 
 import static io.javalin.apibuilder.ApiBuilder.get;
+import static io.javalin.apibuilder.ApiBuilder.post;
 
 public class Main {
     private static final String PROPERTIES_NAME = "noteclose.properties";
 
     public static void main(String[] args) {
+        Logger logger = LoggerFactory.getLogger(Main.class);
+
         // Before anything, load the properties
         File propertiesFile = new File(PROPERTIES_NAME);
         Properties properties = new Properties(new NoteCloseProperties());
@@ -63,23 +69,48 @@ public class Main {
         Connection connection = dbConnection.connect();
         DBUtil dbUtil = new DBUtil(connection);
 
+        // Start the Timers
+        //Read delay from the config
+        int delay;
+        try {
+            delay = Integer.parseInt(properties.getProperty("timer.interval"));
+        }  catch (NumberFormatException e) {
+            delay = 900;
+            logger.warn(String.format("Couldn't read timer interval from config, defaulting to %d.", delay));
+        }
+
+        //Now, start the timer
+        Timer timer = new Timer("Closing notes finder");
+        timer.scheduleAtFixedRate(new ClosingNoteFinderTimerTask(apiUtil, dbUtil, delay), 0, delay * 1000L);
+
         // Setup and start Javalin
         Supplier<SessionHandler> sessionHandlerSupplier = dbConnection.databaseSessionHandler();
 
         Javalin app = Javalin.create(config -> {
             config.sessionHandler(sessionHandlerSupplier);
+            config.accessManager(new OSMAccessManager());
         }).start(Integer.parseInt(properties.getProperty("web.port")));
 
         // Set up routes
         AuthController authController = new AuthController(service, apiUtil, dbUtil);
+        NoteScheduleController scheduleController = new NoteScheduleController(dbUtil, apiUtil);
         app.routes(() -> {
-            get(Path.Web.OSM_LOGIN, authController.handleLogin);
-            get(Path.Web.OAUTH_CALLBACK, authController.handleOAuthSuccess);
-            get(Path.Web.OSM_LOGOUT, authController.handleLogout);
+            get(Path.Web.OSM_LOGIN, authController.handleLogin, UserScheduleRole.NOT_AUTHENTIFIED);
+            get(Path.Web.OAUTH_CALLBACK, authController.handleOAuthSuccess, UserScheduleRole.NOT_AUTHENTIFIED);
+            get(Path.Web.OSM_LOGOUT, authController.handleLogout, UserScheduleRole.NOT_AUTHENTIFIED);
+
+            post(Path.Web.NOTE_SCHEDULE, scheduleController.handleNoteScheduleCreation, UserScheduleRole.AUTHENTIFIED);
+            post(Path.Web.NOTE_CANCEL, scheduleController.handleNoteScheduleCancellation, UserScheduleRole.AUTHENTIFIED);
+            post(Path.Web.NOTE_CLOSE, scheduleController.handleNoteClosure, UserScheduleRole.AUTHENTIFIED);
         });
+
+        app.before(Path.Web.AUTH_PREFIX + "*", authController.beforeAuth);
 
         app.exception(OSMApiException.class, ErrorController.handleOsmApiException);
         app.exception(OSMDataException.class, ErrorController.handleOsmDataException);
         app.exception(Exception.class, ErrorController.handleException);
+
+        app.error(HttpCode.BAD_REQUEST.getStatus(), ErrorController.handle400);
+        app.error(HttpCode.UNAUTHORIZED.getStatus(), ErrorController.handle401);
     }
 }

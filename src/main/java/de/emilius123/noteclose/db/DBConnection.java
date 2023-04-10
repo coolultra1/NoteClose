@@ -12,20 +12,15 @@ import java.util.function.Supplier;
  * Not really that useful, quickly passed on to Javalin
  */
 public class DBConnection {
-    private final String host;
-    private final int port;
-    private final String database;
-    private final String user;
-    private final String password;
     private final MysqlDataSource dataSource;
     private Connection connection;
 
     public DBConnection(Properties properties) {
-        host = properties.getProperty("mysql.host");
-        port = Integer.parseInt(properties.getProperty("mysql.port"));
-        database = properties.getProperty("mysql.database");
-        user = properties.getProperty("mysql.user");
-        password = properties.getProperty("mysql.password");
+        String host = properties.getProperty("mysql.host");
+        int port = Integer.parseInt(properties.getProperty("mysql.port"));
+        String database = properties.getProperty("mysql.database");
+        String user = properties.getProperty("mysql.user");
+        String password = properties.getProperty("mysql.password");
         dataSource = new MysqlDataSource();
         connection = null;
 

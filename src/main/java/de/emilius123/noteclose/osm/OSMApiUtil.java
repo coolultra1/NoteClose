@@ -7,9 +7,13 @@ import com.github.scribejava.core.oauth.OAuth20Service;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import de.emilius123.noteclose.Main;
+import de.emilius123.noteclose.osm.note.OSMNote;
 import de.emilius123.noteclose.osm.note.ScheduledNote;
 import de.emilius123.noteclose.osm.exception.OSMApiException;
 import de.emilius123.noteclose.osm.exception.OSMDataException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -25,6 +29,7 @@ public class OSMApiUtil {
     private final String OSM_API;
     private final OAuth20Service service;
     private final SimpleDateFormat API_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z");
+    private final Logger logger = LoggerFactory.getLogger(Main.class);
 
     public OSMApiUtil(String OSM_API, OAuth20Service service) {
         this.OSM_API = OSM_API;
@@ -55,34 +60,25 @@ public class OSMApiUtil {
     }
 
     /**
-     * Checks for activity on a scheduled note since the note has been scheduled and whether it can be closed at all
-     *
-     * @param note The note to check for activity
-     * @return Whether the note has had activity since scheduling (false = no). Will always be true when the note has already been closed
+     * Gets a note from the API as an OSMNote
+     * @param note The ID of the node
+     * @return The note
      */
-    private boolean checkNoteCloseability(ScheduledNote note, boolean skipActivityCheck) throws IOException, ExecutionException, InterruptedException, OSMApiException, OSMDataException {
+    public OSMNote getNote(int note) throws OSMApiException, IOException, ExecutionException, InterruptedException, OSMDataException {
         // Create and run request
-        OAuthRequest request = new OAuthRequest(Verb.GET, OSM_API + String.format("notes/%s.json", note.note()));
+        OAuthRequest request = new OAuthRequest(Verb.GET, OSM_API + String.format("notes/%s.json", note));
         Response response = service.execute(request);
 
         // Throw APIException if Status Code isn't 200
-        if(response.getCode() != 200) {
+        if(response.getCode() == 404) {
+            return null;
+        } else if(response.getCode() != 200) {
             throw new OSMApiException(response.getMessage(), response.getCode());
         }
 
         // Parse data and get latest comment
         JsonObject noteProperties = JsonParser.parseString(response.getBody()).getAsJsonObject()
                 .get("properties").getAsJsonObject();
-        // Check if the note is closed
-        if(!Objects.equals(noteProperties.get("status").getAsString(), "open")) {
-            // For this, note closure counts as activity, so return true when the note is closed
-            return true;
-        } else {
-            // Skip the activity check if skipActivityCheck
-            if(skipActivityCheck) {
-                return false;
-            }
-        }
 
         // Check comment activity
         JsonArray noteComments = noteProperties.getAsJsonArray("comments");
@@ -98,7 +94,29 @@ public class OSMApiUtil {
             throw new OSMDataException(String.format("Couldn't parse timestamp %s", latestCommentDate), e);
         }
 
-        return note.schedule_date().compareTo(latestCommenttimestamp) <= 0;
+        return new OSMNote(note, Objects.equals(noteProperties.get("status").getAsString(), "open"), latestCommenttimestamp);
+    }
+
+    /**
+     * Checks for activity on a scheduled note since the note has been scheduled and whether it can be closed at all
+     *
+     * @param note The note to check for activity
+     * @return Whether the note has had activity since scheduling (false = no). Will always be true when the note has already been closed
+     */
+    private boolean checkNoteCloseability(ScheduledNote note, boolean skipActivityCheck) throws IOException, ExecutionException, InterruptedException, OSMApiException, OSMDataException {
+        OSMNote osmNote = getNote(note.note());
+
+        // Check if the note is closed
+        if(!osmNote.isOpen()) {
+            // For this, note closure counts as activity, so return true when the note is closed
+            return true;
+        } else {
+            // Skip the activity check if skipActivityCheck
+            if(skipActivityCheck) {
+                return false;
+            }
+        }
+        return note.schedule_date().compareTo(osmNote.getMostRecentComment()) <= 0;
     }
 
     /**
@@ -110,6 +128,7 @@ public class OSMApiUtil {
      * @return Whether the note has successfully been closed (true=yes, false=no)
      */
     public boolean closeNote(ScheduledNote note, String token, boolean force) throws IOException, ExecutionException, OSMDataException, InterruptedException, OSMApiException {
+        logger.info(String.format("Closing note %d", note.note()));
         // First, check if the note is closeable
         if(checkNoteCloseability(note, force)) {
             // Note can't be closed, either due to having activity (if force is true), or due to being closed already
@@ -127,7 +146,9 @@ public class OSMApiUtil {
         Response response = service.execute(request);
 
         // Finally, check the response code and return
-        if(response.getCode()  != 200) {
+        if(response.getCode() == 401) {
+            logger.info(String.format("Closing note failed with 401 for user %d", note.osm_user()));
+        } else if(response.getCode() != 200) {
             // If the status code isn't 200, that wasn't successful
             throw new OSMApiException(response.getMessage(), response.getCode());
         }

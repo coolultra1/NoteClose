@@ -23,5 +23,8 @@ public class NoteCloseProperties extends Properties {
         this.setProperty("mysql.database", "");
         this.setProperty("mysql.user", "");
         this.setProperty("mysql.password", "");
+
+        // General
+        this.setProperty("timer.interval", "900");
     }
 }

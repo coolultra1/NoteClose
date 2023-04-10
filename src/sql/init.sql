@@ -14,5 +14,5 @@ create table if not exists note(
     schedule_date datetime not null default now(), -- The time the note was scheduled to close
     close_date datetime not null, -- The time the note is scheduled to close
     close_message text,
-    info enum("scheduled", "executed", "cancelled") default "scheduled"
+    info enum("SCHEDULED", "EXECUTED", "CANCELLED") default "scheduled"
 );

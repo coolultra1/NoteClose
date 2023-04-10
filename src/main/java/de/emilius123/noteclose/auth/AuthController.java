@@ -1,7 +1,5 @@
 package de.emilius123.noteclose.auth;
 
-import com.github.scribejava.core.builder.ScopeBuilder;
-import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.model.OAuth2AccessTokenErrorResponse;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import de.emilius123.noteclose.db.DBUtil;
@@ -9,8 +7,6 @@ import de.emilius123.noteclose.osm.OAuthUser;
 import de.emilius123.noteclose.osm.OSMApiUtil;
 import io.javalin.http.Handler;
 import io.javalin.http.HttpCode;
-
-import java.util.Properties;
 
 /**
  * Handles all requests regarding auth
@@ -25,6 +21,14 @@ public class AuthController {
         this.apiUtil = apiUtil;
         this.dbUtil = dbUtil;
     }
+
+    // Called before all requests to /auth endpoints to
+    public Handler beforeAuth = ctx -> {
+        // If the user is already logged in, just redirect to index
+        if(ctx.sessionAttribute("user") != null) {
+            ctx.redirect("/");
+        }
+    };
 
     // Retrieve an authentication URL and redirect the user to it
     public Handler handleLogin = ctx -> {

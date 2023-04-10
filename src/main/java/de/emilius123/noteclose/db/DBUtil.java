@@ -51,6 +51,37 @@ public class DBUtil {
         statement.execute();
     }
 
+    private ArrayList<ScheduledNote> readNotes(ResultSet result) throws SQLException {
+        ArrayList<ScheduledNote> userNotes = new ArrayList<>();
+
+        while(result.next()) {
+            userNotes.add(new ScheduledNote(
+                    result.getInt(1), // Note ID
+                    result.getInt(2), // OSM User ID
+                    result.getTimestamp(3), // Schedule date
+                    result.getTimestamp(4), // Close date
+                    result.getString(5), // Close message
+                    ScheduledNoteStatus.valueOf(result.getString(6)))); // Schedule status
+        }
+
+        return userNotes;
+    }
+
+    /**
+     * Get the notes to close within the next given seconds
+     *
+     * @param future The amount of seconds in the future to give the closing notes of
+     * @return An ArrayList containing all notes to be closed within the given timeframe
+     */
+    public ArrayList<ScheduledNote> getClosingNotes(int future) throws SQLException {
+        // Prepare and execute statement
+        PreparedStatement statement = connection.prepareStatement("select * from note where info=\"SCHEDULED\" and close_date <= now() + interval ? second");
+        statement.setInt(1, future);
+        ResultSet result = statement.executeQuery();
+
+        return readNotes(result);
+    }
+
     /**
      * Retrieves a given user's scheduled notes (currently max. 50)
      *
@@ -64,16 +95,8 @@ public class DBUtil {
         ResultSet result = statement.executeQuery();
 
         // Loop through ResultSet, adding all notes from there into the ArrayList
-        ArrayList<ScheduledNote> userNotes = new ArrayList<>();
-        while(result.next()) {
-            userNotes.add(new ScheduledNote(
-                    result.getInt(1), // Note ID
-                    result.getInt(2), // OSM User ID
-                    result.getTimestamp(3), // Schedule date
-                    result.getTimestamp(4), // Close date
-                    result.getString(5), // Close message
-                    ScheduledNoteStatus.valueOf(result.getString(6)))); // Schedule status
-        }
+        ArrayList<ScheduledNote> userNotes = readNotes(result);
+
 
         // Finally, return the ArrayList
         return userNotes;
@@ -86,11 +109,37 @@ public class DBUtil {
      */
     public void writeNote(ScheduledNote note) throws SQLException {
         // Prepare and execute statement
-        PreparedStatement statement = connection.prepareStatement("insert into note(note,osm_user,close_date) values(?,?,?)");
+        PreparedStatement statement = connection.prepareStatement("insert into note(note,osm_user,close_date,close_message) values(?,?,?,?)");
         statement.setInt(1, note.note());
         statement.setInt(2, note.osm_user());
         statement.setTimestamp(3, note.close_date());
+        statement.setString(4, note.message());
         statement.execute();
+    }
+
+    /**
+     * Whether a note is already scheduled in the database
+     *
+     * @param id The note of whom the availability is to check
+     */
+    public boolean isNoteScheduled(int id) throws SQLException {
+        // Prepare and execute statement
+
+
+        return getNoteSchedule(id) != null;
+    }
+
+    public ScheduledNote getNoteSchedule(int id) throws SQLException {
+        // Prepare and execute statement
+        PreparedStatement statement = connection.prepareStatement("select * from note where note=?");
+        statement.setInt(1, id);
+        ResultSet result = statement.executeQuery();
+
+        if(!result.next()) {
+            return null;
+        }
+
+        return readNotes(result).get(1);
     }
 
     public void updateNoteStatus(int id, ScheduledNoteStatus status) throws SQLException {
