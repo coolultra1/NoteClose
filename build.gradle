@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'application'
     id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id 'com.coditory.manifest' version '0.2.6'
 }
 
 repositories {
@@ -19,7 +20,7 @@ dependencies {
     implementation 'com.github.scribejava:scribejava-apis:8.3.1'
 
     // Javalin
-    implementation 'io.javalin:javalin:4.6.3'
+    implementation 'io.javalin:javalin:5.4.2'
 
     // Gson
     implementation 'com.google.code.gson:gson:2.10.1'
