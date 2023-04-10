@@ -1,4 +1,4 @@
-package de.emilius123.noteclose.auth;
+package de.emilius123.noteclose.db;
 
 import com.mysql.cj.jdbc.MysqlDataSource;
 import org.eclipse.jetty.server.session.*;
@@ -22,12 +22,12 @@ public class DBConnection {
 
     public DBConnection(Properties properties) {
         host = properties.getProperty("mysql.host");
-        port = Integer.valueOf(properties.getProperty("mysql.port"));
+        port = Integer.parseInt(properties.getProperty("mysql.port"));
         database = properties.getProperty("mysql.database");
         user = properties.getProperty("mysql.user");
         password = properties.getProperty("mysql.password");
         dataSource = new MysqlDataSource();
-        Connection connection = null;
+        connection = null;
 
         // Setup dataSource and connect
         try {
