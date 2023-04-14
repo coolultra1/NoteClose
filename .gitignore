@@ -6,6 +6,7 @@ noteclose.properties
 .gradle
 build/
 bin/
+jte-classes/
 .idea/
 target/
 .vscode/
