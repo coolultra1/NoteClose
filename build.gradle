@@ -3,6 +3,7 @@ plugins {
     id 'application'
     id 'com.github.johnrengelman.shadow' version '8.1.1'
     id 'com.coditory.manifest' version '0.2.6'
+    id 'gg.jte.gradle' version '2.3.0'
 }
 
 repositories {
@@ -22,6 +23,12 @@ dependencies {
     // Javalin
     implementation 'io.javalin:javalin:5.4.2'
 
+    // Javalin-Rendering
+    implementation 'io.javalin:javalin-rendering:5.4.2'
+
+    // Jte
+    implementation 'gg.jte:jte:2.3.0'
+
     // Gson
     implementation 'com.google.code.gson:gson:2.10.1'
 
@@ -35,4 +42,16 @@ dependencies {
 // Output to build/libs/shadow.jar
 shadowJar {
     mainClassName("de.emilius123.noteclose.Main")
+}
+
+jte {
+    precompile()
+}
+
+jar {
+    dependsOn precompileJte
+    from fileTree("jte-classes") {
+        include "**/*.class"
+        include "**/*.bin" // Only required if you use binary templates
+    }
 }

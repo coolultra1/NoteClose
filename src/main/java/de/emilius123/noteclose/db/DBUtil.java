@@ -83,15 +83,16 @@ public class DBUtil {
     }
 
     /**
-     * Retrieves a given user's scheduled notes (currently max. 50)
+     * Retrieves a given user's scheduled notes
      *
      * @param user The user, of whom the schedules notes are to retrieve
-     * @return An ArrayList containing the user's most recent 50 note schedules
+     * @return An ArrayList containing the user's most recent (limit) note schedules
      */
-    public ArrayList<ScheduledNote> getUserNotes(int user) throws SQLException {
+    public ArrayList<ScheduledNote> getUserNotes(int user, int limit) throws SQLException {
         // Prepare and execute statement
-        PreparedStatement statement = connection.prepareStatement("select * from note where osm_user=? order by schedule_date desc limit 50");
+        PreparedStatement statement = connection.prepareStatement("select * from note where osm_user=? order by schedule_date desc limit ?");
         statement.setInt(1, user);
+        statement.setInt(2, limit);
         ResultSet result = statement.executeQuery();
 
         // Loop through ResultSet, adding all notes from there into the ArrayList
@@ -123,23 +124,23 @@ public class DBUtil {
      * @param id The note of whom the availability is to check
      */
     public boolean isNoteScheduled(int id) throws SQLException {
-        // Prepare and execute statement
-
-
         return getNoteSchedule(id) != null;
     }
 
     public ScheduledNote getNoteSchedule(int id) throws SQLException {
         // Prepare and execute statement
-        PreparedStatement statement = connection.prepareStatement("select * from note where note=?");
+        PreparedStatement statement = connection.prepareStatement("select * from note where note=? and info=?");
         statement.setInt(1, id);
+        statement.setString(2, "SCHEDULED");
         ResultSet result = statement.executeQuery();
+        ArrayList<ScheduledNote> noteSchedule = readNotes(result);
 
-        if(!result.next()) {
+
+        if(noteSchedule.size() == 0) {
             return null;
+        } else {
+            return noteSchedule.get(0);
         }
-
-        return readNotes(result).get(1);
     }
 
     public void updateNoteStatus(int id, ScheduledNoteStatus status) throws SQLException {

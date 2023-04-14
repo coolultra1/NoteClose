@@ -7,14 +7,29 @@ import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.Date;
 
 public class NoteScheduleController {
     private DBUtil dbUtil;
     private OSMApiUtil apiUtil;
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     public NoteScheduleController(DBUtil dbUtil, OSMApiUtil apiUtil) {
         this.dbUtil = dbUtil;
         this.apiUtil = apiUtil;
+    }
+
+    private Timestamp parseHtmlTime(String input) {
+        String inputFormatted = input.replace("T", " ");
+
+        try {
+            return Timestamp.valueOf(LocalDateTime.parse(inputFormatted, formatter));
+        } catch (DateTimeParseException e) {
+            return null;
+        }
     }
 
     public Handler handleNoteScheduleCreation = ctx -> {
@@ -39,11 +54,13 @@ public class NoteScheduleController {
             } catch (NumberFormatException e) {
                 // Provided note isn't a number, request can't be processed further
                 ctx.status(HttpStatus.BAD_REQUEST);
+                ctx.result("Invalid note provided");
                 return;
             }
         } else {
             // No note ID provided
             ctx.status(HttpStatus.BAD_REQUEST);
+            ctx.result("No note provided!");
             return;
         }
 
@@ -53,10 +70,18 @@ public class NoteScheduleController {
         Timestamp close_date;
 
         if(timestampValue != null) {
-            close_date = new Timestamp(1);
+            close_date = parseHtmlTime(timestampValue);
         } else {
             // No timestamp provided
             ctx.status(HttpStatus.BAD_REQUEST);
+            ctx.result("No timestamp provided!");
+            return;
+        }
+
+        if(close_date == null) {
+            // Invalid timestamp provided
+            ctx.status(HttpStatus.BAD_REQUEST);
+            ctx.result("Invalid timestamp provided!");
             return;
         }
 
@@ -66,6 +91,7 @@ public class NoteScheduleController {
         if(osmNote == null || !osmNote.isOpen()) {
             // Note doesn't exist
             ctx.status(HttpStatus.BAD_REQUEST);
+            ctx.result("Requested note doesn't exist/is closed!");
             return;
         }
 
@@ -75,6 +101,13 @@ public class NoteScheduleController {
             ctx.status(HttpStatus.CONFLICT);
             ctx.result("Note already scheduled!");
             return;
+        }
+
+        // Lastly, check whether the timestamp is in the future
+        if(close_date.compareTo(new Date()) < 0) {
+            // Requested close date lies in the past, abort
+            ctx.status(HttpStatus.CONFLICT);
+            ctx.result("Close date must lie in the future!");
         }
 
         // Create the scheduled note and write it to the database
@@ -94,12 +127,14 @@ public class NoteScheduleController {
                 noteId = Integer.parseInt(noteIdValue);
             } catch (NumberFormatException e) {
                 // Provided note isn't a number, request can't be processed further
+                ctx.result("Invalid note provided!");
                 ctx.status(HttpStatus.BAD_REQUEST);
                 return;
             }
         } else {
             // No note ID provided
             ctx.status(HttpStatus.BAD_REQUEST);
+            ctx.result("No note provided!");
             return;
         }
 
@@ -109,6 +144,7 @@ public class NoteScheduleController {
         if(note == null || note.status() != ScheduledNoteStatus.SCHEDULED) {
             // Note isn't even scheduled, abort
             ctx.status(HttpStatus.BAD_REQUEST);
+            ctx.result("Note not scheduled!");
             return;
         }
 
@@ -138,11 +174,13 @@ public class NoteScheduleController {
             } catch (NumberFormatException e) {
                 // Provided note isn't a number, request can't be processed further
                 ctx.status(HttpStatus.BAD_REQUEST);
+                ctx.result("Invalid note provided!");
                 return;
             }
         } else {
             // No note ID provided
             ctx.status(HttpStatus.BAD_REQUEST);
+            ctx.result("No note provided!");
             return;
         }
 
@@ -152,6 +190,7 @@ public class NoteScheduleController {
         if(note == null || note.status() != ScheduledNoteStatus.SCHEDULED) {
             // Note isn't even scheduled, abort
             ctx.status(HttpStatus.BAD_REQUEST);
+            ctx.result("Note not scheduled!");
             return;
         }
 

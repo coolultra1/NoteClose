@@ -1,4 +1,4 @@
-package de.emilius123.noteclose;
+package de.emilius123.noteclose.web;
 
 import de.emilius123.noteclose.osm.exception.OSMApiException;
 import de.emilius123.noteclose.osm.exception.OSMDataException;
@@ -30,10 +30,6 @@ public class ErrorController {
         ctx.result(String.format("An error has occurred processing the data from the OpenStreetMap API: %s", e.getMessage()));
 
         e.printStackTrace();
-    };
-
-    public static Handler handle400 = ctx -> {
-        ctx.result("Your request could not be processed. Please check your parameters and try again.");
     };
 
     public static Handler handle401 = ctx -> {

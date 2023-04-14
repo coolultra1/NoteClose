@@ -1,0 +1,56 @@
+body {
+    background: rgb(203,49,42);
+    background: linear-gradient(90deg, rgba(203,49,42,1) 0%, rgba(142,193,63,1) 100%);
+    text-align: center;
+}
+
+#login_info {
+    font-style: italic
+}
+
+#entry_box {
+   display: flex;
+   flex-wrap: wrap;
+   justify-content: center;
+   margin: 0.5% auto;
+   background: rgba(255, 99, 71, 0.3);
+   border-radius: 0.7rem;
+   width: 75%;
+}
+
+#user_notes {
+   display: flex;
+   flex-wrap: wrap;
+   justify-content: center;
+   margin: 0.5% auto;
+   background: rgba(255, 255, 255, 0.3);
+   border-radius: 0.7rem;
+   width: 75%;
+}
+
+input {
+  align: center;
+  display: block;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 0.25rem;
+  box-sizing: border-box;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+#login_button {
+    -webkit-appearance: button;
+    -moz-appearance: button;
+    appearance: button;
+
+    text-decoration: none;
+    color: initial;
+}
+
+.negative {
+    color: tomato;
+}

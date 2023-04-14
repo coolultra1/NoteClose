@@ -13,9 +13,15 @@ import de.emilius123.noteclose.osm.exception.OSMApiException;
 import de.emilius123.noteclose.osm.exception.OSMDataException;
 import de.emilius123.noteclose.osm.note.NoteScheduleController;
 import de.emilius123.noteclose.osm.timer.ClosingNoteFinderTimerTask;
+import de.emilius123.noteclose.util.NoteCloseProperties;
 import de.emilius123.noteclose.util.Path;
+import de.emilius123.noteclose.web.ErrorController;
+import de.emilius123.noteclose.web.IndexHandler;
+import gg.jte.runtime.Template;
 import io.javalin.Javalin;
 import io.javalin.http.HttpStatus;
+import io.javalin.http.staticfiles.Location;
+import io.javalin.rendering.template.JavalinJte;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +57,7 @@ public class Main {
             }
         } catch (IOException e) {
             // There is no help anymore, die
+            logger.error("Couldn't load config!");
             e.printStackTrace();
             return;
         }
@@ -89,12 +96,21 @@ public class Main {
         Javalin app = Javalin.create(config -> {
             config.jetty.sessionHandler(sessionHandlerSupplier);
             config.accessManager(new OSMAccessManager());
+            config.staticFiles.add(staticFileConfig -> {
+                staticFileConfig.hostedPath = "/assets";
+                staticFileConfig.directory = "/web/public";
+                staticFileConfig.location = Location.CLASSPATH;
+            });
         }).start(Integer.parseInt(properties.getProperty("web.port")));
 
         // Set up routes
+        IndexHandler indexHandler = new IndexHandler(dbUtil);
         AuthController authController = new AuthController(service, apiUtil, dbUtil);
         NoteScheduleController scheduleController = new NoteScheduleController(dbUtil, apiUtil);
         app.routes(() -> {
+            get("/", indexHandler.handleIndex, UserScheduleRole.NOT_AUTHENTIFIED);
+
+            get("/login", ctx -> {ctx.redirect(Path.Web.OSM_LOGIN, HttpStatus.MOVED_PERMANENTLY);}, UserScheduleRole.NOT_AUTHENTIFIED);
             get(Path.Web.OSM_LOGIN, authController.handleLogin, UserScheduleRole.NOT_AUTHENTIFIED);
             get(Path.Web.OAUTH_CALLBACK, authController.handleOAuthSuccess, UserScheduleRole.NOT_AUTHENTIFIED);
             get(Path.Web.OSM_LOGOUT, authController.handleLogout, UserScheduleRole.NOT_AUTHENTIFIED);
@@ -109,8 +125,6 @@ public class Main {
         app.exception(OSMApiException.class, ErrorController.handleOsmApiException);
         app.exception(OSMDataException.class, ErrorController.handleOsmDataException);
         app.exception(Exception.class, ErrorController.handleException);
-
-        app.error(HttpStatus.BAD_REQUEST.getCode(), ErrorController.handle400);
         app.error(HttpStatus.UNAUTHORIZED.getCode(), ErrorController.handle401);
     }
 }

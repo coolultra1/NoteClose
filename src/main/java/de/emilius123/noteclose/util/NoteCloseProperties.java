@@ -1,4 +1,4 @@
-package de.emilius123.noteclose;
+package de.emilius123.noteclose.util;
 
 import java.util.Properties;
 
@@ -12,7 +12,7 @@ public class NoteCloseProperties extends Properties {
         this.setProperty("oauth.baseurl", "https://master.apis.dev.openstreetmap.org/oauth2/");
         this.setProperty("oauth.client-key", "");
         this.setProperty("oauth.client-secret", "");
-        this.setProperty("oauth.callback", "http://127.0.0.1:7777/oauth_complete");
+        this.setProperty("oauth.callback", "http://127.0.0.1:7777/auth/oauth_complete");
 
         // Web
         this.setProperty("web.port", "7777");

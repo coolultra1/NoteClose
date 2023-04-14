@@ -42,6 +42,7 @@ public class AuthController {
         // If code is null, bad request instantly
         if(code == null) {
             ctx.status(HttpStatus.BAD_REQUEST);
+            ctx.result("No code provided!");
             return;
         }
 
@@ -52,6 +53,7 @@ public class AuthController {
         } catch(OAuth2AccessTokenErrorResponse e) {
             // If token retrieval fails, return bad request
             ctx.status(HttpStatus.BAD_REQUEST);
+            ctx.result("Invalid code provided!");
             return;
         }
 
