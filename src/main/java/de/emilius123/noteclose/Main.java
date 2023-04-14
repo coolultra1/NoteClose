@@ -15,7 +15,7 @@ import de.emilius123.noteclose.osm.note.NoteScheduleController;
 import de.emilius123.noteclose.osm.timer.ClosingNoteFinderTimerTask;
 import de.emilius123.noteclose.util.Path;
 import io.javalin.Javalin;
-import io.javalin.http.HttpCode;
+import io.javalin.http.HttpStatus;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,7 +87,7 @@ public class Main {
         Supplier<SessionHandler> sessionHandlerSupplier = dbConnection.databaseSessionHandler();
 
         Javalin app = Javalin.create(config -> {
-            config.sessionHandler(sessionHandlerSupplier);
+            config.jetty.sessionHandler(sessionHandlerSupplier);
             config.accessManager(new OSMAccessManager());
         }).start(Integer.parseInt(properties.getProperty("web.port")));
 
@@ -110,7 +110,7 @@ public class Main {
         app.exception(OSMDataException.class, ErrorController.handleOsmDataException);
         app.exception(Exception.class, ErrorController.handleException);
 
-        app.error(HttpCode.BAD_REQUEST.getStatus(), ErrorController.handle400);
-        app.error(HttpCode.UNAUTHORIZED.getStatus(), ErrorController.handle401);
+        app.error(HttpStatus.BAD_REQUEST.getCode(), ErrorController.handle400);
+        app.error(HttpStatus.UNAUTHORIZED.getCode(), ErrorController.handle401);
     }
 }

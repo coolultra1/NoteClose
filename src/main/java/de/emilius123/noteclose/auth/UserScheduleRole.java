@@ -1,6 +1,6 @@
 package de.emilius123.noteclose.auth;
 
-import io.javalin.core.security.RouteRole;
+import io.javalin.security.RouteRole;
 
 /**
  * A role a user can have
