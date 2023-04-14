@@ -52,6 +52,6 @@ jar {
     dependsOn precompileJte
     from fileTree("jte-classes") {
         include "**/*.class"
-        include "**/*.bin" // Only required if you use binary templates
+        include "**/*.bin"
     }
 }
