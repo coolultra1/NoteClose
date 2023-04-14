@@ -4,7 +4,7 @@ import de.emilius123.noteclose.db.DBUtil;
 import de.emilius123.noteclose.osm.OAuthUser;
 import de.emilius123.noteclose.osm.OSMApiUtil;
 import io.javalin.http.Handler;
-import io.javalin.http.HttpCode;
+import io.javalin.http.HttpStatus;
 
 import java.sql.Timestamp;
 
@@ -38,12 +38,12 @@ public class NoteScheduleController {
                 noteId = Integer.parseInt(noteIdValue);
             } catch (NumberFormatException e) {
                 // Provided note isn't a number, request can't be processed further
-                ctx.status(HttpCode.BAD_REQUEST);
+                ctx.status(HttpStatus.BAD_REQUEST);
                 return;
             }
         } else {
             // No note ID provided
-            ctx.status(HttpCode.BAD_REQUEST);
+            ctx.status(HttpStatus.BAD_REQUEST);
             return;
         }
 
@@ -56,7 +56,7 @@ public class NoteScheduleController {
             close_date = new Timestamp(1);
         } else {
             // No timestamp provided
-            ctx.status(HttpCode.BAD_REQUEST);
+            ctx.status(HttpStatus.BAD_REQUEST);
             return;
         }
 
@@ -65,14 +65,14 @@ public class NoteScheduleController {
         OSMNote osmNote = apiUtil.getNote(noteId);
         if(osmNote == null || !osmNote.isOpen()) {
             // Note doesn't exist
-            ctx.status(HttpCode.BAD_REQUEST);
+            ctx.status(HttpStatus.BAD_REQUEST);
             return;
         }
 
         // Now check, whether the note has already been scheduled
         if(dbUtil.isNoteScheduled(noteId)) {
             // Note is already scheduled, abort
-            ctx.status(HttpCode.CONFLICT);
+            ctx.status(HttpStatus.CONFLICT);
             ctx.result("Note already scheduled!");
             return;
         }
@@ -94,12 +94,12 @@ public class NoteScheduleController {
                 noteId = Integer.parseInt(noteIdValue);
             } catch (NumberFormatException e) {
                 // Provided note isn't a number, request can't be processed further
-                ctx.status(HttpCode.BAD_REQUEST);
+                ctx.status(HttpStatus.BAD_REQUEST);
                 return;
             }
         } else {
             // No note ID provided
-            ctx.status(HttpCode.BAD_REQUEST);
+            ctx.status(HttpStatus.BAD_REQUEST);
             return;
         }
 
@@ -108,13 +108,13 @@ public class NoteScheduleController {
 
         if(note == null || note.status() != ScheduledNoteStatus.SCHEDULED) {
             // Note isn't even scheduled, abort
-            ctx.status(HttpCode.BAD_REQUEST);
+            ctx.status(HttpStatus.BAD_REQUEST);
             return;
         }
 
         if(note.osm_user() != user.id()) {
             // User didn't schedule that note, abort
-            ctx.status(HttpCode.UNAUTHORIZED);
+            ctx.status(HttpStatus.UNAUTHORIZED);
             return;
         }
 
@@ -137,12 +137,12 @@ public class NoteScheduleController {
                 noteId = Integer.parseInt(noteIdValue);
             } catch (NumberFormatException e) {
                 // Provided note isn't a number, request can't be processed further
-                ctx.status(HttpCode.BAD_REQUEST);
+                ctx.status(HttpStatus.BAD_REQUEST);
                 return;
             }
         } else {
             // No note ID provided
-            ctx.status(HttpCode.BAD_REQUEST);
+            ctx.status(HttpStatus.BAD_REQUEST);
             return;
         }
 
@@ -151,13 +151,13 @@ public class NoteScheduleController {
 
         if(note == null || note.status() != ScheduledNoteStatus.SCHEDULED) {
             // Note isn't even scheduled, abort
-            ctx.status(HttpCode.BAD_REQUEST);
+            ctx.status(HttpStatus.BAD_REQUEST);
             return;
         }
 
         if(note.osm_user() != user.id()) {
             // User didn't schedule that note, abort
-            ctx.status(HttpCode.UNAUTHORIZED);
+            ctx.status(HttpStatus.UNAUTHORIZED);
             return;
         }
 

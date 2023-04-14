@@ -1,19 +1,20 @@
 package de.emilius123.noteclose.auth;
 
 import de.emilius123.noteclose.util.Path;
-import io.javalin.core.security.RouteRole;
+import io.javalin.security.RouteRole;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
-import io.javalin.http.HttpCode;
+import io.javalin.http.HttpStatus;
+import org.jetbrains.annotations.NotNull;;
 
 import java.util.Set;
 
 /**
  * Manages access to pages restricted to users logged in with OSM
  */
-public class OSMAccessManager implements io.javalin.core.security.AccessManager {
+public class OSMAccessManager implements io.javalin.security.AccessManager {
     @Override
-    public void manage(Handler handler, Context ctx, Set<RouteRole> routeRoles) throws Exception {
+    public void manage(@NotNull Handler handler, @NotNull Context ctx, @NotNull Set<? extends RouteRole> routeRoles) throws Exception {
         if(routeRoles.contains(UserScheduleRole.NOT_AUTHENTIFIED)) {
             // Page doesn't require auth, just handle
             handler.handle(ctx);
@@ -29,6 +30,6 @@ public class OSMAccessManager implements io.javalin.core.security.AccessManager 
         }
 
         // If request isn't already handled, user isn't authorized. Redirect to login page
-        ctx.status(401);
+        ctx.status(HttpStatus.UNAUTHORIZED);
     }
 }

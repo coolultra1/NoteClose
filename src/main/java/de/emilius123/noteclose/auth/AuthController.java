@@ -6,7 +6,7 @@ import de.emilius123.noteclose.db.DBUtil;
 import de.emilius123.noteclose.osm.OAuthUser;
 import de.emilius123.noteclose.osm.OSMApiUtil;
 import io.javalin.http.Handler;
-import io.javalin.http.HttpCode;
+import io.javalin.http.HttpStatus;
 
 /**
  * Handles all requests regarding auth
@@ -41,7 +41,7 @@ public class AuthController {
         String code = ctx.queryParam("code");
         // If code is null, bad request instantly
         if(code == null) {
-            ctx.status(HttpCode.BAD_REQUEST);
+            ctx.status(HttpStatus.BAD_REQUEST);
             return;
         }
 
@@ -51,7 +51,7 @@ public class AuthController {
             token = service.getAccessToken(code).getAccessToken();
         } catch(OAuth2AccessTokenErrorResponse e) {
             // If token retrieval fails, return bad request
-            ctx.status(HttpCode.BAD_REQUEST);
+            ctx.status(HttpStatus.BAD_REQUEST);
             return;
         }
 
@@ -68,7 +68,7 @@ public class AuthController {
 
     // Invalidate user's session
     public Handler handleLogout = ctx -> {
-        ctx.req.getSession().invalidate();
+        ctx.req().getSession().invalidate();
 
         // Finally, redirect to index
         ctx.redirect("/");

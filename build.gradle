@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'application'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
     id 'com.coditory.manifest' version '0.2.6'
 }
 
@@ -16,7 +17,7 @@ targetCompatibility = 18
 
 dependencies {
     // ScribeJava
-    implementation 'com.github.scribejava:scribejava-apis:8.3.1'
+    implementation 'com.github.scribejava:scribejava-apis:8.3.3'
 
     // Javalin
     implementation 'io.javalin:javalin:5.4.2'
@@ -25,8 +26,13 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.10.1'
 
     // Slf4j Simple
-    implementation 'org.slf4j:slf4j-simple:1.7.36'
+    implementation 'org.slf4j:slf4j-simple:2.0.5'
 
     // MySQL Connector
-    implementation 'mysql:mysql-connector-java:8.0.29'
+    implementation 'mysql:mysql-connector-java:8.0.32'
+}
+
+// Output to build/libs/shadow.jar
+shadowJar {
+    mainClassName("de.emilius123.noteclose.Main")
 }
