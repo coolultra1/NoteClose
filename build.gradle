@@ -1,9 +1,9 @@
 plugins {
     id 'java'
     id 'application'
-    id 'com.github.johnrengelman.shadow' version '8.1.1'
     id 'com.coditory.manifest' version '0.2.6'
     id 'gg.jte.gradle' version '2.3.0'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
 repositories {
@@ -38,20 +38,8 @@ dependencies {
     // MySQL Connector
     implementation 'mysql:mysql-connector-java:8.0.32'
 }
+mainClassName = 'de.emilius123.noteclose.Main'
 
-// Output to build/libs/shadow.jar
 shadowJar {
     mainClassName("de.emilius123.noteclose.Main")
-}
-
-jte {
-    precompile()
-}
-
-jar {
-    dependsOn precompileJte
-    from fileTree("jte-classes") {
-        include "**/*.class"
-        include "**/*.bin"
-    }
 }

@@ -28,7 +28,7 @@
                    min="2024-04-01T00:00">
 
             <label for="message">Message on closure:</label><br>
-            <input type="text" title="Message on closure" placeholder="Message on closure" id="message" name="message">
+            <input type="text" title="Message on closure" placeholder="Message on closure" id="message" name="message"><br>
 
             @if(user != null)
             <%-- Only display submit button when logged in --%>
