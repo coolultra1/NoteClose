@@ -40,6 +40,10 @@ dependencies {
 }
 mainClassName = 'de.emilius123.noteclose.Main'
 
+jte {
+    generate()
+}
+
 shadowJar {
     mainClassName("de.emilius123.noteclose.Main")
 }

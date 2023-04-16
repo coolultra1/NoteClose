@@ -17,6 +17,8 @@ import de.emilius123.noteclose.util.NoteCloseProperties;
 import de.emilius123.noteclose.util.Path;
 import de.emilius123.noteclose.web.ErrorController;
 import de.emilius123.noteclose.web.IndexHandler;
+import gg.jte.ContentType;
+import gg.jte.TemplateEngine;
 import gg.jte.runtime.Template;
 import io.javalin.Javalin;
 import io.javalin.http.HttpStatus;
@@ -102,6 +104,9 @@ public class Main {
                 staticFileConfig.location = Location.CLASSPATH;
             });
         }).start(Integer.parseInt(properties.getProperty("web.port")));
+
+        // Set up JTE
+        JavalinJte.init(TemplateEngine.createPrecompiled(ContentType.Html));
 
         // Set up routes
         IndexHandler indexHandler = new IndexHandler(dbUtil);
