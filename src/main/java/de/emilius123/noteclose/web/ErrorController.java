@@ -2,6 +2,7 @@ package de.emilius123.noteclose.web;
 
 import de.emilius123.noteclose.osm.exception.OSMApiException;
 import de.emilius123.noteclose.osm.exception.OSMDataException;
+import de.emilius123.noteclose.osm.exception.OSMInvalidAuthException;
 import de.emilius123.noteclose.util.Path;
 import io.javalin.http.ExceptionHandler;
 import io.javalin.http.Handler;
@@ -25,11 +26,16 @@ public class ErrorController {
         e.printStackTrace();
     };
 
-    public static ExceptionHandler<OSMDataException> handleOsmDataException =(e, ctx) -> {
+    public static ExceptionHandler<OSMDataException> handleOsmDataException = (e, ctx) -> {
         ctx.status(HttpStatus.INTERNAL_SERVER_ERROR);
         ctx.result(String.format("An error has occurred processing the data from the OpenStreetMap API: %s", e.getMessage()));
 
         e.printStackTrace();
+    };
+
+    public static ExceptionHandler<OSMInvalidAuthException> handleOsmInvalidAuthException = (e, ctx) -> {
+        ctx.status(HttpStatus.UNAUTHORIZED);
+        ctx.result("Your request to the OpenStreetMap API could not be fulfilled as your OAuth token is invalid. Please re-authenticate.");
     };
 
     public static Handler handle401 = ctx -> {

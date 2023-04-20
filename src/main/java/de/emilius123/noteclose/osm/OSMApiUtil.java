@@ -8,6 +8,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import de.emilius123.noteclose.Main;
+import de.emilius123.noteclose.osm.exception.OSMInvalidAuthException;
 import de.emilius123.noteclose.osm.note.OSMNote;
 import de.emilius123.noteclose.osm.note.ScheduledNote;
 import de.emilius123.noteclose.osm.exception.OSMApiException;
@@ -127,7 +128,7 @@ public class OSMApiUtil {
      * @param force Whether to skip the activity check
      * @return Whether the note has successfully been closed (true=yes, false=no)
      */
-    public boolean closeNote(ScheduledNote note, String token, boolean force) throws IOException, ExecutionException, OSMDataException, InterruptedException, OSMApiException {
+    public boolean closeNote(ScheduledNote note, String token, boolean force) throws IOException, ExecutionException, OSMDataException, InterruptedException, OSMApiException, OSMInvalidAuthException {
         logger.info(String.format("Closing note %d", note.note()));
         // First, check if the note is closeable
         if(checkNoteCloseability(note, force)) {
@@ -147,7 +148,12 @@ public class OSMApiUtil {
 
         // Finally, check the response code and return
         if(response.getCode() == 401) {
+            // User token invalid/revoked
+            //Log invalidity
             logger.info(String.format("Closing note failed with 401 for user %d", note.osm_user()));
+
+            //And throw exception
+            throw new OSMInvalidAuthException();
         } else if(response.getCode() != 200) {
             // If the status code isn't 200, that wasn't successful
             throw new OSMApiException(response.getMessage(), response.getCode());

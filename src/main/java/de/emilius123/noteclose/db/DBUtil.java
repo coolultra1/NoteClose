@@ -53,6 +53,12 @@ public class DBUtil {
         statement.execute();
     }
 
+    public void setUserTokenRevoked(int userId) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement("update user_token set info=\"REVOKED\" where id=?");
+        statement.setInt(1, userId);
+        statement.execute();
+    }
+
     private ArrayList<ScheduledNote> readNotes(ResultSet result) throws SQLException {
         ArrayList<ScheduledNote> userNotes = new ArrayList<>();
 

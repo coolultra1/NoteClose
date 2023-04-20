@@ -11,6 +11,7 @@ import de.emilius123.noteclose.db.DBUtil;
 import de.emilius123.noteclose.osm.OSMApiUtil;
 import de.emilius123.noteclose.osm.exception.OSMApiException;
 import de.emilius123.noteclose.osm.exception.OSMDataException;
+import de.emilius123.noteclose.osm.exception.OSMInvalidAuthException;
 import de.emilius123.noteclose.osm.note.NoteScheduleController;
 import de.emilius123.noteclose.osm.timer.ClosingNoteFinderTimerTask;
 import de.emilius123.noteclose.util.NoteCloseProperties;
@@ -129,6 +130,7 @@ public class Main {
 
         app.exception(OSMApiException.class, ErrorController.handleOsmApiException);
         app.exception(OSMDataException.class, ErrorController.handleOsmDataException);
+        app.exception(OSMInvalidAuthException.class, ErrorController.handleOsmInvalidAuthException);
         app.exception(Exception.class, ErrorController.handleException);
         app.error(HttpStatus.UNAUTHORIZED.getCode(), ErrorController.handle401);
     }

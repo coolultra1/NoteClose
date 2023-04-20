@@ -7,6 +7,7 @@ import de.emilius123.noteclose.osm.TokenStatus;
 import de.emilius123.noteclose.osm.UserToken;
 import de.emilius123.noteclose.osm.exception.OSMApiException;
 import de.emilius123.noteclose.osm.exception.OSMDataException;
+import de.emilius123.noteclose.osm.exception.OSMInvalidAuthException;
 import de.emilius123.noteclose.osm.note.ScheduledNote;
 import de.emilius123.noteclose.osm.note.ScheduledNoteStatus;
 import org.slf4j.Logger;
@@ -46,7 +47,25 @@ public class NoteCloseTimerTask extends TimerTask {
                 return;
             }
 
-            apiUtil.closeNote(scheduledNote, token.token(), false);
+            // Close note
+            boolean result;
+            try {
+                result = apiUtil.closeNote(scheduledNote, token.token(), false);
+            } catch (OSMInvalidAuthException e) {
+                // If the auth is invalid, mark the user token as invalid in the DB and note as failed
+                dbUtil.setUserTokenRevoked(scheduledNote.osm_user());
+                dbUtil.updateNoteStatus(scheduledNote.note(), ScheduledNoteStatus.FAILED);
+                logger.info(String.format("Couldn't close note %d as user %d as user token has been revoked.", scheduledNote.note(), scheduledNote.osm_user()));
+                return;
+            }
+
+            if(!result) {
+                // Note couldn't be closed due to activity, set status to cancelled
+                dbUtil.updateNoteStatus(scheduledNote.note(), ScheduledNoteStatus.CANCELLED);
+                logger.info(String.format("Didn't close note %d due to activity.", scheduledNote.note()));
+                return;
+            }
+
             dbUtil.updateNoteStatus(scheduledNote.note(), ScheduledNoteStatus.EXECUTED);
             logger.info(String.format("Closed note %d as user %d", scheduledNote.note(), scheduledNote.osm_user()));
         } catch (IOException | ExecutionException | OSMDataException | InterruptedException | OSMApiException | SQLException e) {
