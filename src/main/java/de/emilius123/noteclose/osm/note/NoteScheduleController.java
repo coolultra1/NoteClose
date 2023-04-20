@@ -187,8 +187,8 @@ public class NoteScheduleController {
         // Now, get the note schedule from the database
         ScheduledNote note = dbUtil.getNoteSchedule(noteId);
 
-        if(note == null || note.status() != ScheduledNoteStatus.SCHEDULED) {
-            // Note isn't even scheduled, abort
+        if(note == null || note.status() == ScheduledNoteStatus.CANCELLED || note.status() == ScheduledNoteStatus.EXECUTED) {
+            // Note isn't even scheduled/failed, abort
             ctx.status(HttpStatus.BAD_REQUEST);
             ctx.result("Note not scheduled!");
             return;

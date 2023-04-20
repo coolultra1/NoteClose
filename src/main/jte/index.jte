@@ -75,6 +75,15 @@
                                 </form>
                             </td>
                         @endif
+
+                        @if(currentNote.status() == ScheduledNoteStatus.FAILED)
+                            <td>
+                                <form action="/note/close" method="post">
+                                    <input type="hidden" name="note" value="${currentNote.note()}">
+                                    <input type="submit" name="cancel" value="Close now"/>
+                                </form>
+                            </td>
+                        @endif
                     </tr>
                 @endfor
                 </table>

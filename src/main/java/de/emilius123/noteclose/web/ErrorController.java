@@ -34,7 +34,7 @@ public class ErrorController {
     };
 
     public static ExceptionHandler<OSMInvalidAuthException> handleOsmInvalidAuthException = (e, ctx) -> {
-        ctx.status(HttpStatus.UNAUTHORIZED);
+        ctx.status(HttpStatus.CONFLICT);
         ctx.result("Your request to the OpenStreetMap API could not be fulfilled as your OAuth token is invalid. Please re-authenticate.");
     };
 

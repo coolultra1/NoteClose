@@ -132,14 +132,20 @@ public class DBUtil {
      * @param id The note of whom the availability is to check
      */
     public boolean isNoteScheduled(int id) throws SQLException {
-        return getNoteSchedule(id) != null;
+        ScheduledNote schedule = getNoteSchedule(id);
+        if(schedule == null) {
+            // If there is no entry in the DB, return false
+            return false;
+        }
+
+        // Otherwise return whether the status is scheduled
+        return schedule.status() == ScheduledNoteStatus.SCHEDULED;
     }
 
     public ScheduledNote getNoteSchedule(int id) throws SQLException {
         // Prepare and execute statement
-        PreparedStatement statement = connection.prepareStatement("select * from note where note=? and info=?");
+        PreparedStatement statement = connection.prepareStatement("select * from note where note=?");
         statement.setInt(1, id);
-        statement.setString(2, "SCHEDULED");
         ResultSet result = statement.executeQuery();
         ArrayList<ScheduledNote> noteSchedule = readNotes(result);
 
