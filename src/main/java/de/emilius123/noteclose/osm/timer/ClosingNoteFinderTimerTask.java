@@ -27,6 +27,8 @@ public class ClosingNoteFinderTimerTask extends TimerTask {
 
     @Override
     public void run() {
+        logger.info("Looking for closing notes");
+
         ArrayList<ScheduledNote> closingNotes;
 
         // Try to get closingNotes

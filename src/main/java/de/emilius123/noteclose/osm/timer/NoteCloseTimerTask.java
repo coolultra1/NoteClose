@@ -48,6 +48,7 @@ public class NoteCloseTimerTask extends TimerTask {
 
             apiUtil.closeNote(scheduledNote, token.token(), false);
             dbUtil.updateNoteStatus(scheduledNote.note(), ScheduledNoteStatus.EXECUTED);
+            logger.info(String.format("Closed note %d as user %d", scheduledNote.note(), scheduledNote.osm_user()));
         } catch (IOException | ExecutionException | OSMDataException | InterruptedException | OSMApiException | SQLException e) {
             e.printStackTrace();
         }
