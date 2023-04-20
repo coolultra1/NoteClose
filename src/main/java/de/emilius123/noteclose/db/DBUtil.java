@@ -25,7 +25,7 @@ public class DBUtil {
      */
     public UserToken getUserToken(int userId) throws SQLException {
         // Prepare and execute statement
-        PreparedStatement statement = connection.prepareStatement("select * from user_token where id=?");
+        PreparedStatement statement = connection.prepareStatement("select token, info from user_token where id=?");
         statement.setInt(1, userId);
         ResultSet result = statement.executeQuery();
 
