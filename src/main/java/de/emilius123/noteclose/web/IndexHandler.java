@@ -28,7 +28,7 @@ public class IndexHandler {
         // User notes
         if(user != null) {
             // Only query user notes if user is logged in;
-            indexModel.put("userNotes", dbUtil.getUserNotes(user.id(), 5));
+            indexModel.put("userNotes", dbUtil.getUserNotes(user.id(), 111));
         }
 
         ctx.render("index.jte", indexModel);
