@@ -3,6 +3,7 @@ package de.emilius123.noteclose.osm.note;
 import de.emilius123.noteclose.db.DBUtil;
 import de.emilius123.noteclose.osm.OAuthUser;
 import de.emilius123.noteclose.osm.OSMApiUtil;
+import de.emilius123.noteclose.util.Path;
 import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
 
@@ -113,6 +114,10 @@ public class NoteScheduleController {
         // Create the scheduled note and write it to the database
         ScheduledNote note = new ScheduledNote(noteId, user.id(), null, close_date, message, null);
         dbUtil.writeNote(note);
+
+        // Add a success message and redirect to index
+        ctx.sessionAttribute("statusMessage", "Scheduled note successfully.");
+        ctx.redirect("/");
     };
 
     public Handler handleNoteScheduleCancellation = ctx -> {
@@ -156,6 +161,10 @@ public class NoteScheduleController {
 
         // Note is scheduled and user is allowed, now cancel the schedule
         dbUtil.updateNoteStatus(noteId, ScheduledNoteStatus.CANCELLED);
+
+        // Add a success message and redirect to index
+        ctx.sessionAttribute("statusMessage", "Cancelled schedule successfully.");
+        ctx.redirect("/");
     };
 
     /**
@@ -202,5 +211,9 @@ public class NoteScheduleController {
 
         apiUtil.closeNote(note, dbUtil.getUserToken(user.id()).token(), true);
         dbUtil.updateNoteStatus(noteId, ScheduledNoteStatus.EXECUTED);
+
+        // Add a success message and redirect to index
+        ctx.sessionAttribute("statusMessage", "Closed note successfully.");
+        ctx.redirect("/");
     };
 }

@@ -2,6 +2,7 @@
 @import java.time.format.DateTimeFormatter
 @param de.emilius123.noteclose.osm.OAuthUser user
 @param java.util.List<de.emilius123.noteclose.osm.note.ScheduledNote> userNotes
+@param String statusMessage
 
 <head>
     <meta charset="UTF-8">
@@ -89,6 +90,11 @@
                 </table>
             @endif
         </div>
+    @endif
+
+    <%-- If available, alert status message --%>
+    @if(statusMessage != null)
+        <script>setTimeout(()=>alert("${statusMessage}"),1);</script>
     @endif
 
     <script src="assets/noteclose.js"></script>

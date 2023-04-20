@@ -20,6 +20,14 @@ public class IndexHandler {
     public Handler handleIndex = ctx -> {
         Map<String, Object> indexModel = new HashMap<>();
 
+        // Status message
+        String statusMessage = ctx.sessionAttribute("statusMessage");
+        if(statusMessage != null) {
+            // Reset status message after first display
+            ctx.sessionAttribute("statusMessage", null);
+        }
+        indexModel.put("statusMessage", statusMessage);
+
         // User info
         OAuthUser user = ctx.sessionAttribute("user");
         indexModel.put("user", user);

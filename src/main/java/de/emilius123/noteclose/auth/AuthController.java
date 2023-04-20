@@ -73,6 +73,7 @@ public class AuthController {
         ctx.req().getSession().invalidate();
 
         // Finally, redirect to index
+        ctx.sessionAttribute("statusMessage", "Logged out successfully.");
         ctx.redirect("/");
     };
 }
