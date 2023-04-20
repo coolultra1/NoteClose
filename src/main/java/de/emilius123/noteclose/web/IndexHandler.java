@@ -4,7 +4,6 @@ import de.emilius123.noteclose.db.DBUtil;
 import de.emilius123.noteclose.osm.OAuthUser;
 import io.javalin.http.Handler;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
