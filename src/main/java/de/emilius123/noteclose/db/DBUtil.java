@@ -1,5 +1,7 @@
 package de.emilius123.noteclose.db;
 
+import de.emilius123.noteclose.osm.TokenStatus;
+import de.emilius123.noteclose.osm.UserToken;
 import de.emilius123.noteclose.osm.note.ScheduledNote;
 import de.emilius123.noteclose.osm.note.ScheduledNoteStatus;
 
@@ -21,9 +23,9 @@ public class DBUtil {
      *
      * @param userId The OSM id of the user
      */
-    public String getUserToken(int userId) throws SQLException {
+    public UserToken getUserToken(int userId) throws SQLException {
         // Prepare and execute statement
-        PreparedStatement statement = connection.prepareStatement("select token from user_token where id=?");
+        PreparedStatement statement = connection.prepareStatement("select * from user_token where id=?");
         statement.setInt(1, userId);
         ResultSet result = statement.executeQuery();
 
@@ -34,7 +36,7 @@ public class DBUtil {
         }
 
         // Return token
-        return result.getString(1);
+        return new UserToken(result.getString(1), TokenStatus.valueOf(result.getString(2)));
     }
 
     /**

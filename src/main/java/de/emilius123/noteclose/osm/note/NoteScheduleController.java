@@ -200,7 +200,7 @@ public class NoteScheduleController {
             return;
         }
 
-        apiUtil.closeNote(note, dbUtil.getUserToken(user.id()), true);
+        apiUtil.closeNote(note, dbUtil.getUserToken(user.id()).token(), true);
         dbUtil.updateNoteStatus(noteId, ScheduledNoteStatus.EXECUTED);
     };
 }
