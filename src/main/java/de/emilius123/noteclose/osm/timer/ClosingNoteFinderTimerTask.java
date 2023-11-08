@@ -17,7 +17,7 @@ public class ClosingNoteFinderTimerTask extends TimerTask {
     private final OSMApiUtil apiUtil;
     private final DBUtil dbUtil;
     private final int future;
-    private final Logger logger = LoggerFactory.getLogger(Main.class);
+    private final Logger logger = LoggerFactory.getLogger(ClosingNoteFinderTimerTask.class);
 
     public ClosingNoteFinderTimerTask(OSMApiUtil apiUtil, DBUtil dbUtil, int future) {
         this.apiUtil = apiUtil;
@@ -30,12 +30,11 @@ public class ClosingNoteFinderTimerTask extends TimerTask {
         logger.info("Looking for closing notes");
 
         ArrayList<ScheduledNote> closingNotes;
-
         // Try to get closingNotes
         try {
             closingNotes = dbUtil.getClosingNotes(future);
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Could not find notes to close!", e);
             return;
         }
 

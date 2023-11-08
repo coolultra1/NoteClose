@@ -20,7 +20,6 @@ import de.emilius123.noteclose.web.ErrorController;
 import de.emilius123.noteclose.web.IndexHandler;
 import gg.jte.ContentType;
 import gg.jte.TemplateEngine;
-import gg.jte.runtime.Template;
 import io.javalin.Javalin;
 import io.javalin.http.HttpStatus;
 import io.javalin.http.staticfiles.Location;
@@ -60,8 +59,7 @@ public class Main {
             }
         } catch (IOException e) {
             // There is no help anymore, die
-            logger.error("Couldn't load config!");
-            e.printStackTrace();
+            logger.error("Couldn't load config!", e);
             return;
         }
 

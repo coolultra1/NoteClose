@@ -108,7 +108,7 @@ public class OSMApiUtil {
         OSMNote osmNote = getNote(note.note());
 
         // Check if the note is closed
-        if(!osmNote.isOpen()) {
+        if(!osmNote.open()) {
             // For this, note closure counts as activity, so return true when the note is closed
             return true;
         } else {
@@ -117,7 +117,7 @@ public class OSMApiUtil {
                 return false;
             }
         }
-        return note.schedule_date().compareTo(osmNote.getMostRecentComment()) <= 0;
+        return note.schedule_date().compareTo(osmNote.mostRecentComment()) <= 0;
     }
 
     /**

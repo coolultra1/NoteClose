@@ -3,7 +3,6 @@ package de.emilius123.noteclose.osm.note;
 import de.emilius123.noteclose.db.DBUtil;
 import de.emilius123.noteclose.osm.OAuthUser;
 import de.emilius123.noteclose.osm.OSMApiUtil;
-import de.emilius123.noteclose.util.Path;
 import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
 
@@ -89,7 +88,7 @@ public class NoteScheduleController {
         // All necessary params checked
         // First, check whether the note even  and whether it's still open and whether it exists
         OSMNote osmNote = apiUtil.getNote(noteId);
-        if(osmNote == null || !osmNote.isOpen()) {
+        if(osmNote == null || !osmNote.open()) {
             // Note doesn't exist
             ctx.status(HttpStatus.BAD_REQUEST);
             ctx.result("Requested note doesn't exist/is closed!");

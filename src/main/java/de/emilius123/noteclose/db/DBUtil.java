@@ -150,7 +150,7 @@ public class DBUtil {
         ArrayList<ScheduledNote> noteSchedule = readNotes(result);
 
 
-        if(noteSchedule.size() == 0) {
+        if(noteSchedule.isEmpty()) {
             return null;
         } else {
             return noteSchedule.get(0);

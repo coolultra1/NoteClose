@@ -22,7 +22,7 @@ public class NoteCloseTimerTask extends TimerTask {
     private final ScheduledNote scheduledNote;
     private final OSMApiUtil apiUtil;
     private final DBUtil dbUtil;
-    private final Logger logger = LoggerFactory.getLogger(Main.class);
+    private final Logger logger = LoggerFactory.getLogger(NoteCloseTimerTask.class);
 
     public NoteCloseTimerTask(ScheduledNote scheduledNote, OSMApiUtil apiUtil, DBUtil dbUtil) {
         this.scheduledNote = scheduledNote;
@@ -69,7 +69,7 @@ public class NoteCloseTimerTask extends TimerTask {
             dbUtil.updateNoteStatus(scheduledNote.note(), ScheduledNoteStatus.EXECUTED);
             logger.info(String.format("Closed note %d as user %d", scheduledNote.note(), scheduledNote.osm_user()));
         } catch (IOException | ExecutionException | OSMDataException | InterruptedException | OSMApiException | SQLException e) {
-            e.printStackTrace();
+            logger.error("Could not close note!", e);
         }
     }
 }
