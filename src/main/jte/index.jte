@@ -1,4 +1,5 @@
 @import de.emilius123.noteclose.osm.note.ScheduledNoteStatus
+@import de.emilius123.noteclose.util.Path
 @import java.time.format.DateTimeFormatter
 @param de.emilius123.noteclose.osm.OAuthUser user
 @param java.util.List<de.emilius123.noteclose.osm.note.ScheduledNote> userNotes
@@ -15,11 +16,11 @@
 <body>
     @if(user != null)
         <%-- Only display when logged in --%>
-        <p id="login_info">You are logged in as <b>${user.username()}</b>. <a href="/logout">Logout</a></p>
+        <p id="login_info">You are logged in as <b>${user.username()}</b>. <a href="${Path.Web.OSM_LOGOUT}">Logout</a></p>
     @endif
 
     <div id="entry_box">
-        <form action="/note/schedule" method="post">
+        <form action="${Path.Web.NOTE_SCHEDULE}" method="post">
             <label for="note">Note ID:</label><br>
             <input type="number" required placeholder="Note ID" id="note" name="note"><br>
 
@@ -35,7 +36,7 @@
             <%-- Only display submit button when logged in --%>
                 <input type="submit" value="Schedule note">
             @else
-                <a href="/auth/login" class="button">Login with OpenStreetMap</a>
+                <a href="${Path.Web.OSM_LOGIN}" class="button">Login with OpenStreetMap</a>
             @endif
         </form>
     </div>
@@ -64,13 +65,13 @@
                         <td>${currentNote.status().toString()}</td>
                         @if(currentNote.status() == ScheduledNoteStatus.SCHEDULED)
                             <td>
-                                <form action="/note/cancel" method="post">
+                                <form action="${Path.Web.NOTE_CANCEL}" method="post">
                                     <input type="hidden" name="note" value="${currentNote.note()}">
                                     <input type="submit" name="cancel" value="Cancel schedule"/>
                                 </form>
                             </td>
                             <td>
-                                <form action="/note/close" method="post">
+                                <form action="${Path.Web.NOTE_CLOSE}" method="post">
                                     <input type="hidden" name="note" value="${currentNote.note()}">
                                     <input type="submit" name="cancel" value="Close now"/>
                                 </form>
@@ -79,7 +80,7 @@
 
                         @if(currentNote.status() == ScheduledNoteStatus.FAILED)
                             <td>
-                                <form action="/note/close" method="post">
+                                <form action="${Path.Web.NOTE_CLOSE}" method="post">
                                     <input type="hidden" name="note" value="${currentNote.note()}">
                                     <input type="submit" name="cancel" value="Close now"/>
                                 </form>
