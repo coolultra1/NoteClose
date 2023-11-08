@@ -50,9 +50,6 @@ jte {
 }
 
 shadowJar {
-    archiveBaseName.set("shadow")
-    archiveClassifier.set("")
-    archiveVersion.set("")
     manifest {
         attributes "Main-Class": "de.emilius123.noteclose.Main"
     }
