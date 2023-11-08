@@ -1,11 +1,10 @@
 package de.emilius123.noteclose.auth;
 
-import de.emilius123.noteclose.util.Path;
-import io.javalin.security.RouteRole;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
-import org.jetbrains.annotations.NotNull;;
+import io.javalin.security.RouteRole;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
 

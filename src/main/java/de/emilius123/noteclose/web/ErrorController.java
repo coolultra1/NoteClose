@@ -12,7 +12,7 @@ import io.javalin.http.HttpStatus;
  * Controller with handlers for possible errors and exceptions
  */
 public class ErrorController {
-    public static ExceptionHandler handleException = (e, ctx) -> {
+    public static ExceptionHandler<Exception> handleException = (e, ctx) -> {
         ctx.status(HttpStatus.INTERNAL_SERVER_ERROR);
         ctx.result(String.format("An exception has occurred: %s: %s", e.getClass().getSimpleName(), e.getMessage()));
 

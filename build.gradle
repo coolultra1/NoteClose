@@ -1,49 +1,59 @@
 plugins {
-    id 'java'
-    id 'application'
-    id 'com.coditory.manifest' version '0.2.6'
-    id 'gg.jte.gradle' version '2.3.0'
-    id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id "java"
+    id "application"
+    id "com.coditory.manifest"
+    id "gg.jte.gradle"
+    id "com.github.johnrengelman.shadow"
 }
 
 repositories {
     mavenCentral()
 }
 
-group 'de.emilius123'
-version '1.1-SNAPSHOT'
+group "de.emilius123"
+version "1.1-SNAPSHOT"
 
-sourceCompatibility = 18
-targetCompatibility = 18
+java {
+    sourceCompatibility = JavaVersion.VERSION_20
+    targetCompatibility = JavaVersion.VERSION_20
+}
 
 dependencies {
     // ScribeJava
-    implementation 'com.github.scribejava:scribejava-apis:8.3.3'
+    implementation "com.github.scribejava:scribejava-apis:_"
 
     // Javalin
-    implementation 'io.javalin:javalin:5.4.2'
+    implementation "io.javalin:javalin:_"
 
     // Javalin-Rendering
-    implementation 'io.javalin:javalin-rendering:5.4.2'
+    implementation "io.javalin:javalin-rendering:_"
 
     // Jte
-    implementation 'gg.jte:jte:2.3.0'
+    implementation "gg.jte:jte:_"
 
     // Gson
-    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation "com.google.code.gson:gson:_"
 
     // Slf4j Simple
-    implementation 'org.slf4j:slf4j-simple:2.0.5'
+    implementation "org.slf4j:slf4j-simple:_"
 
     // MySQL Connector
-    implementation 'mysql:mysql-connector-java:8.0.32'
+    implementation "mysql:mysql-connector-java:_"
 }
-mainClassName = 'de.emilius123.noteclose.Main'
+
+application {
+    mainClass.set("de.emilius123.noteclose.Main")
+}
 
 jte {
     generate()
 }
 
 shadowJar {
-    mainClassName("de.emilius123.noteclose.Main")
+    archiveBaseName.set("shadow")
+    archiveClassifier.set("")
+    archiveVersion.set("")
+    manifest {
+        attributes "Main-Class": "de.emilius123.noteclose.Main"
+    }
 }
