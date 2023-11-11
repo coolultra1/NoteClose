@@ -2,6 +2,8 @@ package de.emilius123.noteclose.db;
 
 import com.mysql.cj.jdbc.MysqlDataSource;
 import org.eclipse.jetty.server.session.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.Properties;
@@ -14,6 +16,7 @@ import java.util.function.Supplier;
 public class DBConnection {
     private final MysqlDataSource dataSource;
     private Connection connection;
+    private final Logger logger = LoggerFactory.getLogger(DBConnection.class);
 
     public DBConnection(Properties properties) {
         String host = properties.getProperty("mysql.host");
@@ -35,7 +38,7 @@ public class DBConnection {
 
             connection = dataSource.getConnection();
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Could not connect to MySQL!", e);
         }
     }
 
